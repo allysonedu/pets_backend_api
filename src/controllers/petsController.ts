@@ -4,8 +4,8 @@ import { PetsService } from "../services/petsService";
 
 const service = new PetsService();
 
-export const listPets = (req: Request, res: Response) => {
-  res.status(200).json(service.fetchPets());
+export const listPets = async (req: Request, res: Response) => {
+  res.status(200).json(await service.fetchPets());
 };
 
 export const createPets = async (req: Request, res: Response) => {
@@ -13,14 +13,20 @@ export const createPets = async (req: Request, res: Response) => {
   res.status(201).json(result);
 };
 
-// export const getPetById = (req: Request, res: Response) => {
-//   console.log("getPetById");
-// };
+export const getPetById = async (req: Request, res: Response) => {
+  const petId = parseInt(req.params.petId);
+  const pet = await service.getPets(petId);
+  res.status(200).json(pet);
+};
 
-// export const updatePetById = (req: Request, res: Response) => {
-//   console.log("updatePetById");
-// };
+export const updatePetById = async (req: Request, res: Response) => {
+  const petId = parseInt(req.params.petId);
+  await service.updatePets(petId, req.body);
+  res.status(204).send();
+};
 
-// export const deletePetById = (req: Request, res: Response) => {
-//   console.log("deletePetById");
-// };
+export const deletePetById = async (req: Request, res: Response) => {
+  const petId = parseInt(req.params.petId);
+  await service.deletePets(petId);
+  res.status(204).send();
+};
