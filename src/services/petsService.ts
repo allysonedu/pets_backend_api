@@ -1,51 +1,38 @@
-import { Pet } from "../models/pet";
+import Pet from "../models/pet";
 
-const pets: Pet[] = [
-  {
-    id: 1,
-    name: "Rex",
-    age: 3,
-    breed: "Golden Retriever",
-    color: "Golden",
-    gender: "Male",
-  },
-  {
-    id: 2,
-    name: "Buddy",
-    age: 4,
-    breed: "Labrador Retriever",
-    color: "Brown",
-    gender: "Male",
-  },
-];
+import { NotFoundError } from "../models/exceptions";
 
-const notFound = new Error("Pet Not Found");
+// quando colocar export default eu ultilizo assim: import Pet from "../models/pet", sem as chaves.
+// quando colocar só export eu ultilizo assim: import {Pet} from "../models/pet", com as chaves.
+
+// passo 3
+const notFound = new NotFoundError("Pet Not Found");
 
 export class PetsService {
   async fetchPets(): Promise<Pet[]> {
-    return pets;
+    return await Pet.findAll();
   }
 
   async getPets(id: number): Promise<Pet | undefined> {
-    const pet = pets.find((p) => p.id === id);
-    if (pet === null) throw notFound;
-    return pet;
+    const petOne = await Pet.findByPk(id);
+    if (petOne === null) throw notFound;
+    return petOne;
   }
 
   async createPets(pet: Pet): Promise<Pet> {
-    pets.push(pet);
-    return pet;
+    const createdPet = await Pet.create({ ...pet });
+    return createdPet;
   }
 
   async updatePets(id: number, pet: Pet): Promise<void> {
-    const index = pets.findIndex((p) => p.id === id);
-    if (index < 0) throw notFound;
-    pets[index] = pet;
+    const dontExists = (await Pet.findByPk(id)) === null;
+    if (dontExists) throw notFound;
+    await Pet.update({ ...pet }, { where: { id } });
   }
 
   async deletePets(id: number): Promise<void> {
-    const index = pets.findIndex((p) => p.id === id);
-    if (index < 0) throw notFound;
-    pets.splice(index, 1);
+    const dontExists = (await Pet.findByPk(id)) === null;
+    if (dontExists) throw notFound;
+    await Pet.destroy({ where: { id } });
   }
 }
